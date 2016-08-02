@@ -2,7 +2,7 @@
 
   // The client ID from the Google Developers Console.
   
-  var CLIENT_ID = '<Enter ID here>'; // Enter ID here
+  var CLIENT_ID = '<your cliend ID>';
 
   // Our Google map.
   var map;
@@ -49,7 +49,7 @@
       } else {
         point2 = point;
         point1.distance(point2).evaluate(function(val) {
-          $("#distance").val(val);
+          $("#distance").val(Math.round(val * 1000) / 1000);
         });
         state = 0;
       }
