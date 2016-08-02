@@ -4,12 +4,13 @@ from urlparse import urlparse, parse_qs
 import subprocess
 import json
 
-PORT_NUMBER = 8080
+PORT_NUMBER = 8888
 
 # set up a JSON response with given code
 def send_prepared_response(s, code):
     s.send_response(code)
     s.send_header('Content-type', 'text/json')
+    s.send_header('Access-Control-Allow-Origin', '*')
     s.end_headers()
     return
 
@@ -19,7 +20,7 @@ class requestHandler(BaseHTTPRequestHandler):
         qs = parse_qs(urlparse(self.path).query)
 
         # Validation checks to ensure all of the required params exist
-        reqParams = ['vol', 'hl']
+        reqParams = ['vol', 'elevationDiff', 'distance']
         for param in reqParams:
             if param not in qs.keys():
                 send_prepared_response(self, 500)
@@ -31,14 +32,16 @@ class requestHandler(BaseHTTPRequestHandler):
         else:
             data = qs['data'][0]
 
+        hl = float(float(qs['elevationDiff'][0]) / float(qs['distance'][0]));
+
         # Set up command to run the R script
-        cmd = 'Rscript probability_calculation.R ' + str(qs['vol'][0]) + ' ' + str(qs['hl'][0]) + ' ' + data
+        cmd = ['Rscript',  'probability_calculation.R'] + [str(qs['vol'][0])] + [str(hl)] + [data]
 
         # try running the script
         # on error return a 500 Internal Server Error response
         # on success set response object to the output given from the script
         try:
-            response = subprocess.check_output(cmd,  universal_newlines=True, shell=True), "\n\n\n"
+            response = subprocess.check_output(cmd,  universal_newlines=True), "\n\n\n"
         except:
             send_prepared_response(self, 500)
             self.wfile.write(json.dumps({'error': 'Sorry, there was an error in running the R script.'}))
@@ -53,6 +56,6 @@ class requestHandler(BaseHTTPRequestHandler):
 
 
 # start server
-server = HTTPServer(('localhost', PORT_NUMBER), requestHandler)
+server = HTTPServer(('', PORT_NUMBER), requestHandler)
 print 'Started httpserver on port ' , PORT_NUMBER
 server.serve_forever()

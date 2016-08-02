@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>EE Demo: ee.MapLayerOverlay</title>
+    <!-- Load the Roboto font. -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
+
+    <!-- Load the Google Maps API. -->
+    <script src="https://maps.google.com/maps/api/js?sensor=false"></script>
+
+    <!-- Load jQuery, a 3rd-party library. -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+    <!-- Load compiled Earth Engine JavaScript client library. -->
+    <script src="/ee.js"></script>
+
+    <!-- Load our script. -->
+    <script src="app.js"></script>
+
+    <!-- Load our styles. -->
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <h1>EE Demo: ee.MapLayerOverlay</h1>
+
+    <div class="map"></div>
+    <input type='text' placeholder="Elevation of Point 1" id="elevation1" disabled="true" />
+    <input type='text' placeholder="Elevation of Point 2" id="elevation2" disabled="true" />
+    <input type='text' placeholder="Elevation Difference" id="elevationDiff" disabled="true" />
+    <input type='text' placeholder="Distance Between Points" id="distance" disabled="true" />
+    <input type='text' placeholder="Volume" id="volume" />
+    <br />
+    <select id="data">
+      <option value="all" selected>All</option>
+      <option value="Canadian">Canadian</option>
+      <option value="Scheidegger">Scheidegger</option>
+      <option value="Corominas">Corominas</option>
+      <option value="Li">Li</option>
+    </select>
+    <br /><br />
+    <button id="calc_button">Calculate Probability</button>
+    <br /><br />
+    <div>
+    <b>Probability: </b> <span id="probability"></span>
+    </div>
+    <br /><Br />
+    <div class="g-sign-in hidden">
+      <span class="label">Sign in with:</span>
+      <div class="button">
+        <span class="icon"></span>
+        <span class="button-text">Google</span>
+      </div>
+    </div>
+
+    <div class="tiles-loading"></div>
+  </body>
+</html>
