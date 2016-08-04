@@ -3,6 +3,7 @@
   // Our Google map.
   var map;
 
+  var flightPath;
   var image;
   var updateElevationsDistance = function(els) {
     var el1 = null;
@@ -42,15 +43,34 @@
         point1 = point;
         point2 = null;
         state = 1;
+        if(flightPath != null) {
+          flightPath.setPath([])
+        }
       } else {
         point2 = point;
         point1.distance(point2).evaluate(function(val) {
           $("#distance").val(Math.round(val * 1000) / 1000);
         });
+
+        if(flightPath == null) {
+          flightPath = new google.maps.Polyline({
+            geodesic: true,
+            strokeColor: '#D8B60B',
+            strokeOpacity: 1.0,
+            strokeWeight: 2
+          });
+          flightPath.setMap(map);
+        }
+
+        var flightPlanCoordinates = [
+          {lat: point1.coordinates_[1], lng: point1.coordinates_[0]},
+          {lat: point2.coordinates_[1], lng: point2.coordinates_[0]}
+        ];
+        flightPath.setPath(flightPlanCoordinates);
+
         state = 0;
       }
       statement.evaluate(function(val) {
-       console.log(val);
        if(elevations[0] == null) {
         elevations[0] = val;
         elevations[1] = null;
