@@ -100,7 +100,9 @@
         url: ajaxUri,
         data: {},
         success: function(data){
-          $("#probability").html(data.probability);
+          var probability = data.probability * 100;
+
+          $("#probability").html(probability + "%");
         },
         error: function() {
           alert("Sorry, there was an error!")
