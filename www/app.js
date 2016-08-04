@@ -1,9 +1,5 @@
 (function() {
 
-  // The client ID from the Google Developers Console.
-  
-  var CLIENT_ID = '<your cliend ID>';
-
   // Our Google map.
   var map;
 
