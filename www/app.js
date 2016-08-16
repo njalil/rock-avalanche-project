@@ -84,11 +84,16 @@
 
           var pointRadius = val/70;
 
+          var enclosingObjects = [];
+
+          var latLngArray = [];
+
           for(var distance = val; distance > 0; distance -= interval) {
             var circumference = 2 * Math.PI * distance;
             var numberOfIterations = Math.round(circumference / (pointRadius * 2))
 
             apart = 360 / numberOfIterations;
+
             for(var deg = 0; deg < 359; deg += apart) {
 
               var positionObj = destination(point1.coordinates_[1], point1.coordinates_[0], deg, distance);
@@ -107,13 +112,23 @@
                 visualization: visualization
               }
 
+              enclosingObjects.push(enclosingObject);
+              latLngArray.push([positionObj.lng, positionObj.lat]);
+
               visualization.setMap(map);
             }
           }
-          
-          
+          console.log("latLngArray: ");
+          console.log(latLngArray.length);
+          console.log("-");
+          var multiPointData = ee.Geometry.MultiPoint(latLngArray);
+          image.reduceRegion(ee.Reducer.histogram(), multiPointData, 30).evaluate(function(multiPointList){
+            console.log("toList output 1 -");
+            console.log(multiPointList);
+            console.log("-");
+          });
 
-
+          console.log(enclosingObjects);
 
           $("#distance").val(Math.round(val * 1000) / 1000);
         });
@@ -127,7 +142,8 @@
           });
           flightPath.setMap(map);
         }
-        var regionGeo = ee.Geometry.Rectangle([point1.coordinates_[0], point1.coordinates_[1], point2.coordinates_[0], point2.coordinates_[1]]);
+
+        var regionGeo = ee.Geometry.MultiPoint([point1.coordinates_[0], point1.coordinates_[1], point2.coordinates_[0], point2.coordinates_[1]]);
         image.reduceRegion(ee.Reducer.toList(), regionGeo, 30).evaluate(function(val){
           console.log("toList output -");
           console.log(val);
