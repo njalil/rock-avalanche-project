@@ -24,27 +24,51 @@
   </head>
   <body>
     <h1>Open-Source Rock Avalanche Modelling Software</h1>
+    
+    <table>
+      <tr>
+        <td width="80%">
+          <div class="map"></div>
+        </td>
+        <td class="label-inputs" width="20%">
+          <b>Elevation 1</b>
+          <input type='text' placeholder="Elevation of Point 1" id="elevation1" disabled="true" />
+          <br />
 
-    <div class="map"></div>
-    <input type='text' placeholder="Elevation of Point 1" id="elevation1" disabled="true" />
-    <input type='text' placeholder="Elevation of Point 2" id="elevation2" disabled="true" />
-    <input type='text' placeholder="Elevation Difference" id="elevationDiff" disabled="true" />
-    <input type='text' placeholder="Distance Between Points" id="distance" disabled="true" />
-    <input type='text' placeholder="Volume" id="volume" />
+          <b>Elevation 2</b>
+          <input type='text' placeholder="Elevation of Point 2" id="elevation2" disabled="true" />
+          <br />
+
+          <b>Elevation Difference</b>
+          <input type='text' placeholder="Elevation Difference" id="elevationDiff" disabled="true" />
+          <br />
+
+          <b>Distance</b>
+          <input type='text' placeholder="Distance Between Points" id="distance" disabled="true" />
+          <br />
+
+          <b>Volume</b>
+          <input type='text' placeholder="Volume" id="volume" />
+          <br />
+
+
+          <select id="data">
+            <option value="all" selected>All</option>
+            <option value="Canadian">Canadian</option>
+            <option value="Scheidegger">Scheidegger</option>
+            <option value="Corominas">Corominas</option>
+            <option value="Li">Li</option>
+          </select>
+          <br />
+
+          <button id="calc_button">Calculate Probability</button>
+          <br />
+          <b>Rock Avalanche Probability: </b> <span id="probability"></span>
+        </td>
+      </tr>
+    </table>
     <br />
-    <select id="data">
-      <option value="all" selected>All</option>
-      <option value="Canadian">Canadian</option>
-      <option value="Scheidegger">Scheidegger</option>
-      <option value="Corominas">Corominas</option>
-      <option value="Li">Li</option>
-    </select>
     <br /><br />
-    <button id="calc_button">Calculate Probability</button>
-    <br /><br />
-    <div>
-    <b>Rock Avalanche Probability: </b> <span id="probability"></span>
-    </div>
     <br /><Br />
     <div class="g-sign-in hidden">
       <span class="label">Sign in with:</span>
