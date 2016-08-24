@@ -3,6 +3,9 @@
   // Our Google map.
   var map;
 
+          var enclosingObjects = [];
+	  var centralElev = null;
+
   var deg2rad = function(angle) {
     return (angle / 180) * Math.PI;
   }
@@ -31,7 +34,7 @@
 
   var flightPath;
   var image;
-  var updateElevationsDistance = function(els) {
+    var updateElevationsDistance = function(els) {
     var el1 = null;
     var el2 = null;
     if(els[0] != null) {
@@ -51,7 +54,7 @@
       var difference = Math.abs(el1 - el2);
       $("#elevationDiff").val(difference);
     }
-    
+       
   }
   // Runs a simple EE analysis and output the results to the web page.
   var runAnalysis = function() {
@@ -64,64 +67,124 @@
 
     map.addListener('click', function(coords) {
       var point = ee.Geometry.Point(coords.latLng.lng(), coords.latLng.lat());
+      console.log("point1="+point);
 
       var meanDictionary = image.reduceRegion(ee.Reducer.mean(), point, 30);
       var statement = meanDictionary.get("elevation");
       if (state == 0) {
         point1 = point;
         point2 = null;
-        state = 1;
         if(flightPath != null) {
-          flightPath.setPath([])
+          flightPath.setPath([]);
         }
+
+	var meanDictionary1 = image.reduceRegion(ee.Reducer.mean(), point, 30);
+	var statement1 = meanDictionary1.get("elevation");
+	statement1.evaluate(function(val) {
+	    centralElev=val;
+	    $("#elevation1").val(val);
+	    state = 1;
+	  });
+
+
       } else {
+
         point2 = point;
         point1.distance(point2).evaluate(function(val) {
           var positionObj;
-          var interval = val / 35;
+          var interval = 2*val / 10;
 
           var apart;
 
-          var pointRadius = val/70;
-
-          var enclosingObjects = [];
+          var pointRadius = interval/2;
 
           var latLngArray = [];
 
           for(var distance = val; distance > 0; distance -= interval) {
             var circumference = 2 * Math.PI * distance;
             var numberOfIterations = Math.round(circumference / (pointRadius * 2))
+	      
+	      console.log("distance="+distance);
 
             apart = 360 / numberOfIterations;
 
-            for(var deg = 0; deg < 359; deg += apart) {
+            for(var deg = 0; deg <= 360-apart/2; deg += apart) {
+	      (function(){
+		var distanceLocal=distance;
+		var pointRadiusLocal = pointRadius;
 
               var positionObj = destination(point1.coordinates_[1], point1.coordinates_[0], deg, distance);
+	      
+	      var pointObj=ee.Geometry.Point(positionObj["lng"],positionObj["lat"]);
 
-              var visualization = new google.maps.Circle({
-                strokeOpacity: 1,
-                strokeWeight: 0,
-                fillColor: 'rgb(255, 100, 0)',
-                fillOpacity: 0.85,
-                center: positionObj,
-                radius: pointRadius
-              });
 
-              var enclosingObject = {
-                position: positionObj,
-                visualization: visualization
-              }
+//              enclosingObjects.push(enclosingObject);
+  //            latLngArray.push([positionObj.lng, positionObj.lat]);
 
-              enclosingObjects.push(enclosingObject);
-              latLngArray.push([positionObj.lng, positionObj.lat]);
+	      var meanDictionary = image.reduceRegion(ee.Reducer.mean(), pointObj, 30);
+	      var statement = meanDictionary.get("elevation");
+	      statement.evaluate(function(val) {
+		  
+		  var elevDiff=centralElev-val;
+		  console.log("centralElev="+centralElev+"|"+pointObj.coordinates_[1]+","+pointObj.coordinates_[0]+"| elev="+val);
+		  ajaxUri = "http://localhost:8888/?vol=" + $("#volume").val() 
+		    + "&elevationDiff=" + elevDiff 
+		    + "&distance=" + distanceLocal 
+		    + "&lat=" + pointObj.coordinates_[1]
+		    + "&lng=" + pointObj.coordinates_[0]
+		    + "&data=" + $("#data").val();
 
-              visualization.setMap(map);
+		  $.ajax({
+		    url: ajaxUri,
+			data: {},
+			success: function(data){
+			var probability = data.probability;// * 100;
+			var co = 'rgb('+Math.floor(Math.min(1,2*probability)*255)+', '+Math.floor(Math.min(1,2-2*probability)*255)+', 0)';
+//			console.log("at="+pointObj.coordinates_[1]+","+pointObj.coordinates_[0]+" , rad="+pointRadiusLocal+", p="+ probability);
+			console.log("at="+parseFloat(data.lng)+","+parseFloat(data.lat)+", rad="+pointRadiusLocal+", p="+ probability+", co="+co);
+
+			var visualization = new google.maps.Circle({
+			  strokeOpacity: 1,
+			      strokeWeight: 0,
+			      fillColor: co,
+			      fillOpacity: 0.45,
+//			      center: {
+	//		    'lat': pointObj.coordinates_[1], 
+		//		'lng': pointObj.coordinates_[0]
+			//	},
+			      center: {
+			    'lat': parseFloat(data.lat), 
+				'lng': parseFloat(data.lng)
+				},
+			      radius: pointRadiusLocal
+			      });
+			
+			var enclosingObject = {
+			position: positionObj,
+			visualization: visualization
+			}
+			
+			enclosingObjects.push(enclosingObject);
+			
+			visualization.setMap(map);
+  		
+	
+			
+//			$("#probability").html(probability + "%");
+		      },
+			error: function() {
+//			alert("Sorry, there was an error!")
+			  }
+		    });
+		  
+		});
+	      })();
             }
           }
-          console.log("latLngArray: ");
-          console.log(latLngArray.length);
-          console.log("-");
-          var multiPointData = ee.Geometry.MultiPoint(latLngArray);
+//          console.log("latLngArray: ");
+  //        console.log(latLngArray.length);
+    //      console.log("-");
+	  /*         var multiPointData = ee.Geometry.MultiPoint(latLngArray);
           image.reduceRegion(ee.Reducer.histogram(), multiPointData, 30).evaluate(function(multiPointList){
             console.log("toList output 1 -");
             console.log(multiPointList);
@@ -130,7 +193,7 @@
 
           console.log(enclosingObjects);
 
-          $("#distance").val(Math.round(val * 1000) / 1000);
+          $("#distance").val(Math.round(val * 1000) / 1000);*/
         });
 
         if(flightPath == null) {
@@ -143,31 +206,33 @@
           flightPath.setMap(map);
         }
 
-        var regionGeo = ee.Geometry.MultiPoint([point1.coordinates_[0], point1.coordinates_[1], point2.coordinates_[0], point2.coordinates_[1]]);
-        image.reduceRegion(ee.Reducer.toList(), regionGeo, 30).evaluate(function(val){
+	/*
+	  var regionGeo = ee.Geometry.MultiPoint([point1.coordinates_[0], point1.coordinates_[1], point2.coordinates_[0], point2.coordinates_[1]]);
+	  image.reduceRegion(ee.Reducer.toList(), regionGeo, 30).evaluate(function(val){
           console.log("toList output -");
           console.log(val);
           console.log("-");
-        });
+	  });
+	*/
         /*
-        if(rectangle == null) {
+	  if(rectangle == null) {
           rectangle = new google.maps.Rectangle({
-            strokeColor: '#FF0000',
-            strokeOpacity: 0.8,
-            strokeWeight: 2,
-            fillColor: '#FF0000',
-            fillOpacity: 0.35
+	  strokeColor: '#FF0000',
+	  strokeOpacity: 0.8,
+	  strokeWeight: 2,
+	  fillColor: '#FF0000',
+	  fillOpacity: 0.35
           });
-        }
-
-        rectangle.setBounds({
+	  }
+	  
+	  rectangle.setBounds({
           north: Math.max(point2.coordinates_[1], point1.coordinates_[1]),
           south: Math.min(point1.coordinates_[1], point2.coordinates_[1]),
           east: Math.max(point2.coordinates_[0], point1.coordinates_[0]),
           west: Math.min(point2.coordinates_[0], point1.coordinates_[0])
-        });
-
-        rectangle.setMap(map);
+	  });
+	  
+	  rectangle.setMap(map);
         */
         var flightPlanCoordinates = [
           {lat: point1.coordinates_[1], lng: point1.coordinates_[0]},
@@ -202,7 +267,8 @@
         });
 
     $("#calc_button").click(function(){
-      ajaxUri = "http://localhost:8888/?vol=" + $("#volume").val() + "&elevationDiff=" + $("#elevationDiff").val() + "&distance=" + $("#distance").val() + "&data=" + $("#data").val();
+      ajaxUri = "http://localhost:8888/?lat=0&lng=0&vol=" + $("#volume").val() + "&elevationDiff=" + $("#elevationDiff").val() + "&distance=" + $("#distance").val() + "&data=" + $("#data").val();
+      $("#debuginfo").val(ajaxUri)
 
       $.ajax({
         url: ajaxUri,
