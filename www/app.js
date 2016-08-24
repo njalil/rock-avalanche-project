@@ -147,7 +147,7 @@
 			  strokeOpacity: 1,
 			      strokeWeight: 0,
 			      fillColor: co,
-			      fillOpacity: 0.45,
+			      fillOpacity: 0.45, 
 //			      center: {
 	//		    'lat': pointObj.coordinates_[1], 
 		//		'lng': pointObj.coordinates_[0]
