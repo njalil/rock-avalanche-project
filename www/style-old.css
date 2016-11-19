@@ -13,10 +13,6 @@ body {
   border-radius: 5px;
   white-space: nowrap;
 }
-.label-inputs {
-  padding: 15px;
-  line-height: 50px;
-}
 .g-sign-in .button:hover {
   cursor: pointer;
 }
@@ -40,7 +36,7 @@ body {
   font-weight: bold;
 }
 .map {
-  width: 100%;
+  width: 95%;
   height: 700px;
   margin-bottom: 10px;
 }
