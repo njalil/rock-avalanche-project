@@ -20,7 +20,7 @@ class requestHandler(BaseHTTPRequestHandler):
         qs = parse_qs(urlparse(self.path).query)
 
         # Validation checks to ensure all of the required params exist
-        reqParams = ['vol', 'elevationDiff', 'distance']
+        reqParams = ['vol', 'elevationDiff', 'distance', 'lat', 'lng']
         for param in reqParams:
             if param not in qs.keys():
                 send_prepared_response(self, 500)
@@ -52,7 +52,7 @@ class requestHandler(BaseHTTPRequestHandler):
         send_prepared_response(self, 200)
 
         # send JSON response with probability
-        self.wfile.write(json.dumps({'probability': float(response[0])}))
+        self.wfile.write(json.dumps({'probability': float(response[0]), 'lat': qs['lat'][0], 'lng': qs['lng'][0]}))
 
 
 # start server

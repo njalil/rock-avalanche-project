@@ -107,6 +107,7 @@
 	      console.log("distance="+distance);
 
             apart = 360 / numberOfIterations;
+	      
 
             for(var deg = 0; deg <= 360-apart/2; deg += apart) {
 	      (function(){

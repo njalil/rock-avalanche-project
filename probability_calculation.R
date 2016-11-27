@@ -8,15 +8,19 @@
 
 # function to find the prediction interval for a subset of the landslide database
 # input Volume in Mm3 (Vol), H/L ratio (HL), and the dataset to use ("Scheidegger", "Li", "Corominas", "Canadian" or "all") 
-if (!require("gsheet")) {
-  install.packages("gsheet", repos="https://cran.r-project.org/") 
-  library("gsheet")
-}
+#removegsheet if (!require("gsheet")) {
+#removegsheet   install.packages("gsheet", repos="https://cran.r-project.org/") 
+#removegsheet   library("gsheet")
+#removegsheet }
 
 regress <- function(Vol, HL, dataset) {
   # call in data from google docs to the workspace
-  require(gsheet)
-  all.data = gsheet2tbl("docs.google.com/spreadsheets/d/1fMqlQs5P2FXA5KSP8HpOrYLT7L3mxUZgn5vl8a1tqKM/edit?usp=sharing")
+#removegsheet   require(gsheet)
+#removegsheet  all.data = gsheet2tbl("docs.google.com/spreadsheets/d/1fMqlQs5P2FXA5KSP8HpOrYLT7L3mxUZgn5vl8a1tqKM/edit?usp=sharing")
+
+
+#removegsheet 	save(all.data,file="gsheetcache.rda");
+	load(file="gsheetcache.rda");
 
   # make a subset of the data based on the input 'dataset'
   if(dataset == "all") {
