@@ -127,7 +127,7 @@
 		  
 		  var elevDiff=centralElev-val;
 		  console.log("centralElev="+centralElev+"|"+pointObj.coordinates_[1]+","+pointObj.coordinates_[0]+"| elev="+val);
-		  ajaxUri = "http://people.cs.ubc.ca:8888/?vol=" + $("#volume").val() 
+		  ajaxUri = ajaxUriBase + "?vol=" + $("#volume").val() 
 		    + "&elevationDiff=" + elevDiff 
 		    + "&distance=" + distanceLocal 
 		    + "&lat=" + pointObj.coordinates_[1]
@@ -267,7 +267,7 @@
         });
 
     $("#calc_button").click(function(){
-      ajaxUri = "http://people.cs.ubc.ca:8888/?lat=0&lng=0&vol=" + $("#volume").val() + "&elevationDiff=" + $("#elevationDiff").val() + "&distance=" + $("#distance").val() + "&data=" + $("#data").val();
+      ajaxUri = ajaxUriBase + "?lat=0&lng=0&vol=" + $("#volume").val() + "&elevationDiff=" + $("#elevationDiff").val() + "&distance=" + $("#distance").val() + "&data=" + $("#data").val();
       $("#debuginfo").val(ajaxUri)
 
       $.ajax({
